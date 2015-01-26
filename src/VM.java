@@ -8,17 +8,29 @@ import javax.script.ScriptEngine;
 import javax.script.ScriptEngineManager;
 import javax.script.ScriptException;
 
+/*
+ * converts prefix notation(5 + 3 = 8) into reverse polish notation(5 3 +) then evaluates it.
+ * used as part of a calculator program to evaluate answers.
+ * contains various other math functions to use as well including variables.
+ * pushes certain symbols or numbers to a stack, then based on certain rules and the arity of the different operations it adds the rest to a queue, until it hits an end bracket, then
+ * it pops the stack onto the queue, when finished it looks like a normal rpn expression.
+ */
 public class VM
 {
+	//contains the parsed numbers+ operation strings when parsed.
 	private static String[] code;
 	private Map<Integer, String> vars = new HashMap<Integer, String>();
+	//right associative operations.
 	private static final String[] symbols = new String[]{"+", "-", "*", "/", "^", "&", "|", "%", "<", ">"};
+	//all operations.
 	private static final String identifiers[] = new String[]{"+", "-", "*", "/", "^", "&", "|", "%", "<", ">", "abs", "cos", "tan", "sin", "pi", "e", "rnd", "pop", "push", "floor", "ceil", "round", "sqrt", "log", "logten", "exp", "min", "max"};
+	//constants.
 	private static final String constansts[] = new String[]{"pi", "e", "rnd", "pop"};
 	private Stack<String> mathStack = new Stack<String>();
 	private Stack<String> stack = new Stack<String>();
 	private int index;
 	private ArrayList<String> queue= new ArrayList<String>();
+	//basically set's the order of operations, like BEDMAS but with more operations.
 	private Map<String, Integer> arity = new HashMap<String, Integer>();
 	public VM(String str)
 	{
@@ -50,6 +62,7 @@ public class VM
 		arity.put("pop", 5);
 		arity.put("e", 5);
 		arity.put("pi", 5);
+		//used a tokenizer and regex to split up the code into a string array.
 		StringTokenizer tokenizer = new StringTokenizer(str);
 		ArrayList<String> code = new ArrayList<String>();
 		
@@ -93,21 +106,7 @@ public class VM
 			this.code[i] = code.get(i);
 		}
 	}
-	public boolean isAny(int num, String strings[])
-	{
-		if(num >= code.length)return false;
-		for (int i = 0; i < strings.length; i++) {
-			if(code[num].equals(strings[i])) return true;
-		}
-		return false;
-	}
-	public static boolean isAny(String str, String strings[])
-	{
-		for (int i = 0; i < strings.length; i++) {
-			if(str.equals(strings[i])) return true;
-		}
-		return false;
-	}
+
 	public String evalNum()
 	{
 		int end = code.length;
@@ -150,6 +149,7 @@ public class VM
 		}
 		return evalRPN();
 	}
+	//evaluates the finished reverse polish notation string
 	public String evalRPN()
 	{
 		System.out.println(queue);
@@ -182,6 +182,7 @@ public class VM
 				}
 				else
 				{
+					//evaluates all right associative operations.
 					double num0 = 0;
 					double num1 = 0;
 					if(!mathStack.isEmpty())num1 = Double.parseDouble(mathStack.pop());
@@ -341,6 +342,21 @@ public class VM
 			return ""+Math.random();
 		}
 		return s;
+	}
+	public boolean isAny(int num, String strings[])
+	{
+		if(num >= code.length)return false;
+		for (int i = 0; i < strings.length; i++) {
+			if(code[num].equals(strings[i])) return true;
+		}
+		return false;
+	}
+	public static boolean isAny(String str, String strings[])
+	{
+		for (int i = 0; i < strings.length; i++) {
+			if(str.equals(strings[i])) return true;
+		}
+		return false;
 	}
 	public static void main(String[] args)
 	{
